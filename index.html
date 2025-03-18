@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Transy Baseball Stats 2025</title>
+    <title>College Baseball Stats</title>
     <style>
         table {
             border-collapse: collapse;
@@ -16,43 +16,52 @@
 </head>
 <body>
 
-    <h1>Transy Baseball Stats 2025</h1>
+    <h1>College Baseball Stats</h1>
 
-    <a href="your_csv_file.csv" download="baseball_stats.csv">Download CSV Stats</a>
-    <h2>Imported Stats</h2>
-    <div id="statsTableContainer">
-        </div>
+    <a href="TransylvaniaplayerStatsHitting0.csv" download="TransylvaniaplayerStatsHitting0.csv">Download Hitting Stats</a><br>
+    <a href="TransylvaniaplayerStatsFielding1.csv" download="TransylvaniaplayerStatsFielding1.csv">Download Fielding Stats</a><br>
+    <a href="TransylvaniaplayerStatsPitching2.csv" download="TransylvaniaplayerStatsPitching2.csv">Download Pitching Stats</a>
+
+    <h2>Hitting Stats</h2>
+    <div id="hittingTableContainer"></div>
+
+    <h2>Fielding Stats</h2>
+    <div id="fieldingTableContainer"></div>
+
+    <h2>Pitching Stats</h2>
+    <div id="pitchingTableContainer"></div>
 
     <script>
-        async function fetchAndDisplayCSV(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const csvText = await response.text();
-                const tableData = parseCSV(csvText);
-                createTable(tableData);
-            } catch (error) {
-                console.error("Error fetching or processing CSV:", error);
-                document.getElementById('statsTableContainer').innerHTML = "<p>Error loading data.</p>";
-            }
+       async function fetchAndDisplayCSV(url, containerId) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const csvText = await response.text();
+        const tableData = parseCSV(csvText);
+        createTable(tableData, containerId); // Pass the container ID
+    } catch (error) {
+        console.error("Error fetching or processing CSV:", error);
+        document.getElementById(containerId).innerHTML = "<p>Error loading data.</p>";
+    }
+}
 
-        function parseCSV(csvText) {
-            const lines = csvText.split(/\r\n|\n/); // Split into lines, handling different line endings
-            const data = [];
-            for (const line of lines) {
-                if (line.trim() !== "") { // Skip empty lines
-                   const values = line.split(',');
-                    data.push(values);
-                }
-            }
-            return data;
+function parseCSV(csvText) {
+    const lines = csvText.split(/\r\n|\n/);
+    const data = [];
+    for (const line of lines) {
+        if (line.trim() !== "") {
+            const values = line.split(',');
+            data.push(values);
         }
-       function createTable(data) {
-    const tableContainer = document.getElementById('statsTableContainer');
-    tableContainer.innerHTML = ''; // Clear any previous content
+    }
+    return data;
+}
+
+function createTable(data, containerId) {
+    const tableContainer = document.getElementById(containerId);
+    tableContainer.innerHTML = '';
 
     if (data.length === 0) {
         tableContainer.innerHTML = '<p>No data found.</p>';
@@ -63,38 +72,33 @@
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
 
-    // Create table header (assuming first row is the header)
     const headerRow = document.createElement('tr');
     data[0].forEach(headerText => {
         const th = document.createElement('th');
-        th.textContent = headerText.trim(); // Trim whitespace
+        th.textContent = headerText.trim();
         headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    // Create table body (data rows)
     for (let i = 1; i < data.length; i++) {
         const dataRow = document.createElement('tr');
         data[i].forEach(cellText => {
             const td = document.createElement('td');
-            td.textContent = cellText.trim(); // Trim whitespace
+            td.textContent = cellText.trim();
             dataRow.appendChild(td);
         });
         tbody.appendChild(dataRow);
     }
     table.appendChild(tbody);
-
     tableContainer.appendChild(table);
 }
 
-// Call the function to fetch and display the data
-// Replace with the URL of your CSV file.  IMPORTANT: This URL must be accessible
-// from where the webpage is loaded.  If it's on the same server, a relative path
-// is fine. If it's elsewhere, you might need to deal with CORS (Cross-Origin Resource Sharing).
-fetchAndDisplayCSV("your_csv_file.csv");
-
-    </script>
+// Fetch and display each CSV file
+fetchAndDisplayCSV("TransylvaniaplayerStatsHitting0.csv", "hittingTableContainer");
+fetchAndDisplayCSV("TransylvaniaplayerStatsFielding1.csv", "fieldingTableContainer");
+fetchAndDisplayCSV("TransylvaniaplayerStatsPitching2.csv", "pitchingTableContainer");
+    
     </script>
 
 </body>
