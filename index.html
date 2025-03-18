@@ -5,37 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transy Baseball Stats 2025</title>
     <style>
-        table {
+      table {
             border-collapse: collapse;
             width: 100%;
-            margin-bottom: 20px;
-            font-family: sans-serif;
+            margin-bottom: 20px; /* Add space between tables */
+            font-family: sans-serif; /* Use a more readable font */
         }
 
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #ddd; /* Lighter border color */
             padding: 8px;
             text-align: left;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #f2f2f2; /* Add background color to header */
             font-weight: bold;
         }
 
         tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #f9f9f9; /* Add zebra striping */
         }
         .error-message {
             color: red;
             font-weight: bold;
         }
     </style>
-    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <h1>Transy Baseball Stats 2025</h1>
-    <p>
+  <p>
         <a href="TransylvaniaplayerStatsHitting0.csv" download>Download Hitting Stats</a> |
         <a href="TransylvaniaplayerStatsFielding1.csv" download>Download Fielding Stats</a> |
         <a href="TransylvaniaplayerStatsPitching2.csv" download>Download Pitching Stats</a>
@@ -49,19 +49,27 @@
 
     <h2>Pitching Stats</h2>
     <div id="pitchingTableContainer"></div>
-
     <div id="g_id_onload"
          data-client_id="555205280925-2b75s565o387o91ritlq66gavafjjqek.apps.googleusercontent.com"
          data-callback="handleCredentialResponse"
          data-auto_prompt="false">
     </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+    </div>
 
     <script>
-    const spreadsheetId = '1-Wd8bmHLjyKiwYxqsUNiZVaSty-s0jfTycLMhxsjCy4'; // Replace with YOUR spreadsheet ID
+        const spreadsheetId = '1-Wd8bmHLjyKiwYxqsUNiZVaSty-s0jfTycLMhxsjCy4';  // Your Spreadsheet ID
+        let tokenClient;
+        let googleUserToken;
 
-     let googleUserToken = null;
 
-    async function handleCredentialResponse(response) {
+      function handleCredentialResponse(response) {
         if (response.credential) {
             console.log("Sign-in successful!");
              googleUserToken = response.credential;
@@ -73,16 +81,18 @@
         }
     }
 
-  async function loadSheetsAPI() {
-    gapi.client.setApiKey('AIzaSyCqlm4Jo2ZxDogdQIj3jBImW_h_HLj9ujQ'); //Set API KEY
-   await gapi.client.load('https://sheets.googleapis.com/$discovery/rest?version=v4');
-        console.log("Google Sheets API loaded.");
-        loadData(); // Now that we're signed in and the API is loaded, fetch the data.
+      async function loadSheetsAPI() {
+        gapi.client.setApiKey('AIzaSyCqlm4Jo2ZxDogdQIj3jBImW_h_HLj9ujQ'); //Set API KEY
+       await gapi.client.load('https://sheets.googleapis.com/$discovery/rest?version=v4');
+            console.log("Google Sheets API loaded.");
+            loadData(); // Now that we're signed in and the API is loaded, fetch the data.
 
-}
+    }
+
 
         async function loadData() {
-            //Fetch and upload Hitting
+          // Fetch and parse CSV data (using your existing functions)
+           //Fetch and upload Hitting
             try{
             const hittingData = await fetchAndParseCSV("TransylvaniaplayerStatsHitting0.csv");
             await updateSheet(spreadsheetId, 'Hitting', combinePlayerData(hittingData));
@@ -108,10 +118,9 @@
                 document.getElementById("pitchingTableContainer").innerHTML = `<p class="error-message">Error loading pitching data.</p>`;
                 console.error("Pitching Error", error);
             }
-
         }
 
-        async function fetchAndParseCSV(csvFileName) {
+          async function fetchAndParseCSV(csvFileName) {
             const response = await fetch(csvFileName);
             if (!response.ok) {
                 throw new Error(`HTTP error ${response.status}: Could not fetch ${csvFileName}`);
@@ -131,14 +140,11 @@
             }
             return data;
         }
-
-        function combinePlayerData(tableData) {
+      function combinePlayerData(tableData) {
             const combinedData = [];
             const playerMap = new Map(); // Use a Map to store player data
-
             // Add the header row
             combinedData.push(tableData[0]);
-
             // Position abbreviation to full name mapping
             const positionMap = {
                 'C': 'Catcher',
@@ -154,30 +160,23 @@
                 'DH': 'Designated Hitter',
                 // Add any other position abbreviations you use
             };
-
-
             // Process data rows (skip the header)
             for (let i = 1; i < tableData.length; i++) {
                 const row = tableData[i];
                 const playerName = row[0]; // Assuming the player's name is in the first column
-
                 if (playerMap.has(playerName)) {
                     // Player already exists, combine the data
                     const existingRow = playerMap.get(playerName);
                     // Find position Column
                     let posIndex = tableData[0].indexOf('POS');
-
                     // Concatenate positions *with full names and forward slash*
                     const currentPosAbbrev = row[posIndex].trim(); // Get the abbreviation
                     const currentPosFull = positionMap[currentPosAbbrev] || currentPosAbbrev; // Get full name, or keep abbreviation if not found
-
                     const existingPosFull = existingRow[posIndex];
-
                       // Check if the position already exists
                     if (!existingPosFull.includes(currentPosFull)) {
-                       existingRow[posIndex] = `<span class="math-inline">\{existingPosFull\}/</span>{currentPosFull}`;
+                       existingRow[posIndex] = `${existingPosFull}/${currentPosFull}`;
                      }
-
                     // Add up the stats. (Important:  This assumes all other columns are numeric!)
                     for (let j = 1; j < row.length; j++) {
                         if (!isNaN(parseFloat(row[j])) && j != posIndex ) { // Check if numeric and not POS
@@ -185,23 +184,19 @@
                         }
                     }
                      playerMap.set(playerName, existingRow);
-
                 } else {
                     // New player, add the row to the map *after converting position*
                     let posIndex = tableData[0].indexOf('POS');
                      const posAbbrev = row[posIndex].trim();
                     const posFull = positionMap[posAbbrev] || posAbbrev; // Convert to full name
                      row[posIndex] = posFull; //replace abv with full
-
                     playerMap.set(playerName, [...row]); // Create a copy of the row
                 }
             }
-
             // Convert the Map values back to an array
              for (const playerData of playerMap.values()) {
                 combinedData.push(playerData);
             }
-
             return combinedData;
         }
 
@@ -210,26 +205,34 @@
             console.warn(`No data to write to sheet: ${sheetName}`);
             return;
         }
-    //Wrap in try catch
-    try {
-        //Clear Sheet
-       const clearResponse =  await gapi.client.sheets.spreadsheets.values.clear({
-                spreadsheetId: spreadsheetId,
-                range: sheetName,
-            });
-        //Append Data
-        const response = await gapi.client.sheets.spreadsheets.values.append({
+        const params = {
             spreadsheetId: spreadsheetId,
             range: sheetName,
             valueInputOption: 'USER_ENTERED',
-            insertDataOption: 'INSERT_ROWS', // Use INSERT_ROWS to avoid overwriting
+            insertDataOption: 'INSERT_ROWS',
             resource: {
                 values: data
-            },
+            }
 
-        });
-        console.log(`${response.result.updates.updatedCells} cells updated in ${sheetName}.`);
-      }
-      catch(err){
-        console.error(`Error updating sheet ${sheetName}:`, err);
-        document
+        };
+
+        try {
+            //Clear Sheet
+          const clearResponse = await gapi.client.sheets.spreadsheets.values.clear({
+                spreadsheetId: spreadsheetId,
+                range: sheetName,
+            });
+            const response = await gapi.client.sheets.spreadsheets.values.append(params, null, googleUserToken);
+
+            console.log(`${response.result.updates.updatedCells} cells updated in ${sheetName}.`);
+
+        } catch (err) {
+            console.error(`Error updating sheet ${sheetName}:`, err);
+            document.getElementById('content').innerText = `Error updating sheet ${sheetName}: ${err.message}`; //show error
+            return;
+        }
+    }
+
+    </script>
+</body>
+</html>
