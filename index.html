@@ -49,23 +49,13 @@
 
     <h2>Pitching Stats</h2>
     <div id="pitchingTableContainer"></div>
-    <div id="g_id_onload"
-         data-client_id="555205280925-2b75s565o387o91ritlq66gavafjjqek.apps.googleusercontent.com"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-theme="outline"
-         data-text="sign_in_with"
-         data-shape="rectangular"
-         data-logo_alignment="left">
-    </div>
+
 
     <script>
         const spreadsheetId = '1-Wd8bmHLjyKiwYxqsUNiZVaSty-s0jfTycLMhxsjCy4';  // Your Spreadsheet ID
         let tokenClient;
         let googleUserToken;
+
 
       // Initialize the GIS client *after* the window has loaded.
       window.onload = function() {
@@ -84,16 +74,17 @@
               },
           });
 
-        //Trigger Button
-        document.getElementById('signInDiv').onclick = function() {
-            tokenClient.requestAccessToken();
-        }
-         // Create a button for sign-in
+        // Create a button for sign-in
         const signInButton = document.createElement('button');
         signInButton.textContent = 'Sign in with Google';
         signInButton.id = 'signInDiv';
         document.body.appendChild(signInButton); // Add the button to the page
-      }
+
+        // Set the onclick handler *after* the button exists:
+        signInButton.onclick = function() {  // Use signInButton, not getElementById
+            tokenClient.requestAccessToken();
+        }
+      };
 
 
       async function loadSheetsAPI() {
