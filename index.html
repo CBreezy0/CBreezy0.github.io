@@ -35,7 +35,7 @@
 </head>
 <body>
     <h1>Transy Baseball Stats 2025</h1>
-     <p>
+    <p>
         <a href="TransylvaniaplayerStatsHitting0.csv" download>Download Hitting Stats</a> |
         <a href="TransylvaniaplayerStatsFielding1.csv" download>Download Fielding Stats</a> |
         <a href="TransylvaniaplayerStatsPitching2.csv" download>Download Pitching Stats</a>
@@ -52,7 +52,8 @@
 
     <div id="g_id_onload"
          data-client_id="555205280925-2b75s565o387o91ritlq66gavafjjqek.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse">
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
     </div>
 
     <script>
@@ -174,7 +175,7 @@
 
                       // Check if the position already exists
                     if (!existingPosFull.includes(currentPosFull)) {
-                       existingRow[posIndex] = `${existingPosFull}/${currentPosFull}`;
+                       existingRow[posIndex] = `<span class="math-inline">\{existingPosFull\}/</span>{currentPosFull}`;
                      }
 
                     // Add up the stats. (Important:  This assumes all other columns are numeric!)
@@ -225,15 +226,10 @@
             resource: {
                 values: data
             },
-            'Authorization': 'Bearer ' + googleUserToken
+
         });
         console.log(`${response.result.updates.updatedCells} cells updated in ${sheetName}.`);
       }
       catch(err){
         console.error(`Error updating sheet ${sheetName}:`, err);
-        document.getElementById('content').innerText = `Error updating sheet ${sheetName}: ${err.message}`; // Or a more specific element
-      }
-    }
-    </script>
-</body>
-</html>
+        document
