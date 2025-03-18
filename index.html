@@ -51,7 +51,6 @@
     <div id="pitchingTableContainer"></div>
     <div id="g_id_onload"
          data-client_id="555205280925-2b75s565o387o91ritlq66gavafjjqek.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
          data-auto_prompt="false">
     </div>
     <div class="g_id_signin"
@@ -68,18 +67,34 @@
         let tokenClient;
         let googleUserToken;
 
+      // Initialize the GIS client *after* the window has loaded.
+      window.onload = function() {
+          tokenClient = google.accounts.oauth2.initTokenClient({
+              client_id: '555205280925-2b75s565o387o91ritlq66gavafjjqek.apps.googleusercontent.com', // Replace with your client ID
+              scope: 'https://www.googleapis.com/auth/spreadsheets',
+              callback: (tokenResponse) => {
+                  if (tokenResponse && tokenResponse.access_token) {
+                      googleUserToken = tokenResponse.access_token;
+                      console.log("Sign-in successful!");
+                      gapi.load('client', loadSheetsAPI); // Load the Sheets API
+                  } else {
+                      console.error("Sign-in failed:", tokenResponse);
+                      alert("Sign-in failed. Please try again.");
+                  }
+              },
+          });
 
-      function handleCredentialResponse(response) {
-        if (response.credential) {
-            console.log("Sign-in successful!");
-             googleUserToken = response.credential;
-            // Load the Google Sheets API (v4) *after* successful sign-in.
-            gapi.load('client', loadSheetsAPI);
-        } else {
-            console.error("Sign-in failed.");
-            alert("Sign-in failed. Please try again.");
+        //Trigger Button
+        document.getElementById('signInDiv').onclick = function() {
+            tokenClient.requestAccessToken();
         }
-    }
+         // Create a button for sign-in
+        const signInButton = document.createElement('button');
+        signInButton.textContent = 'Sign in with Google';
+        signInButton.id = 'signInDiv';
+        document.body.appendChild(signInButton); // Add the button to the page
+      }
+
 
       async function loadSheetsAPI() {
         gapi.client.setApiKey('AIzaSyCqlm4Jo2ZxDogdQIj3jBImW_h_HLj9ujQ'); //Set API KEY
