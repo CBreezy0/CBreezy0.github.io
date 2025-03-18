@@ -48,11 +48,11 @@
 }
 
 function parseCSV(csvText) {
-    const lines = csvText.split(/\r\n|\n/);
+    const lines = csvText.split(/\r\n|\n/); // Split into lines, handling different line endings
     const data = [];
     for (const line of lines) {
-        if (line.trim() !== "") {
-            const values = line.split(',');
+        if (line.trim() !== "") { // Skip empty lines
+           const values = line.split(',');
             data.push(values);
         }
     }
